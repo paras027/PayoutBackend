@@ -134,6 +134,12 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'authorization',
+    'content-type',
+    'idempotency-key',
+]
 
 TEST_RUNNER = 'PlaytoPayout.test_runner.ForceDropTestRunner'
 
