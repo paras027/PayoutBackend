@@ -125,8 +125,14 @@ Content-Type: application/json
 
 ## Running Tests
 
-Only PostgreSQL is required — no Redis or Celery needed for tests.
+Requires PostgreSQL and Redis running locally.
 
+Start Redis:
+```bash
+docker run -d -p 6379:6379 redis:7-alpine
+```
+
+Then run:
 ```bash
 python manage.py test payouts --verbosity=2
 ```
