@@ -18,7 +18,7 @@ Minimal payout engine for Playto Pay. Merchants accumulate balance via credits, 
 ```bash
 git clone <repo-url>
 cd PlaytoPayout
-pip install django djangorestframework psycopg2-binary celery redis
+pip install -r requirements.txt
 ```
 
 ### 2. Configure environment variables
@@ -40,13 +40,24 @@ export REDIS_URL=redis://127.0.0.1:6379/0
 psql -U postgres -c "CREATE DATABASE playtopay;"
 ```
 
-### 4. Run migrations
+### 4. Start Redis (required for Celery)
+
+```bash
+redis-server
+```
+
+Or use Docker:
+```bash
+docker run -d -p 6379:6379 redis:7-alpine
+```
+
+### 5. Run migrations
 
 ```bash
 python manage.py migrate
 ```
 
-### 5. Seed merchants with credit history
+### 6. Seed merchants with credit history
 
 ```bash
 python manage.py seed
@@ -54,19 +65,19 @@ python manage.py seed
 
 This creates 3 merchants (Acme Agency, Freelancer Hub, Digital Studio) with credit balances.
 
-### 6. Start Django
+### 7. Start Django
 
 ```bash
 python manage.py runserver
 ```
 
-### 7. Start Celery worker
+### 8. Start Celery worker
 
 ```bash
 celery -A PlaytoPayout worker --loglevel=info
 ```
 
-### 8. Start Celery beat (for stuck payout retry)
+### 9. Start Celery beat (for stuck payout retry)
 
 ```bash
 celery -A PlaytoPayout beat --loglevel=info
@@ -114,8 +125,22 @@ Content-Type: application/json
 
 ## Running Tests
 
+Only PostgreSQL is required — no Redis or Celery needed for tests.
+
 ```bash
-python manage.py test payouts
+python manage.py test payouts --verbosity=2
+```
+
+Expected output:
+```
+test_different_keys_create_separate_payouts ... ok
+test_only_one_payout_created ... ok
+test_same_key_returns_same_response ... ok
+test_balance_never_goes_negative ... ok
+test_only_one_of_two_concurrent_requests_succeeds ... ok
+
+Ran 5 tests in ~0.5s
+OK
 ```
 
 Includes:
