@@ -57,8 +57,6 @@ def process_payout(self, payout_id):
             return
 
     # simulate external bank call outside the lock
-    import time
-    time.sleep(8)  # simulate bank API latency so frontend can show held/processing state
     result = random.random()
 
     if result < 0.7:
