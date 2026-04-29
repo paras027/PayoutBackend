@@ -41,21 +41,21 @@ class PayoutView(APIView):
         #Idempotency expiry check (24 hours)
         expiry_time = timezone.now() - timedelta(hours=24)
 
-        existing_key = IdempotantKey.objects.filter(
-            merchant=merchant,
-            key=key,
-            created_at__gte=expiry_time
-        ).first()
-
-        if existing_key:
-            return Response(existing_key.response_data, status=200)
+        
 
         #  Main transaction block
         with transaction.atomic():
 
             # Lock merchant row (concurrency)
             merchant = Merchant.objects.select_for_update().get(id=merchant.id)
+            existing_key = IdempotantKey.objects.filter(
+                        merchant=merchant,
+                        key=key,
+                        created_at__gte=expiry_time
+                    ).first()
 
+        if existing_key:
+            return Response(existing_key.response_data, status=200)
             # Calculate balance
             balance = Ledger.objects.filter(merchant=merchant).aggregate(
                 total_balance=Sum(
