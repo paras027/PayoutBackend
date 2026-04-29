@@ -106,5 +106,4 @@ class PayoutView(APIView):
                 process_payout.delay(payout.id)
 
             transaction.on_commit(send_task)
-
-        return Response(response_data, status=200)
+            return Response(response_data, status=200)
